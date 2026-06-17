@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0e0e0e">
+<title>Kumamoto Halal Food</title>
+<link rel="manifest" href="/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Serif+JP:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    --ink0:#080808;--ink1:#0e0e0e;--ink2:#141414;--ink3:#1c1c1c;
+    --g5:#2e2e2e;--g7:#666;--t1:#fff;--t2:#ccc;--t3:#888;
+    --amber:#C8A44D;--amber-d:rgba(200,164,77,.12);
+    --red:#B3001B;--green:#22a550;
+    --font:'Inter',sans-serif;--serif:'Noto Serif JP',serif;
+  }
+  html,body{height:100%;background:var(--ink0);color:var(--t1);font-family:var(--font);overflow-x:hidden}
+
+  /* ── HEADER ── */
+  .header{
+    text-align:center;padding:48px 24px 32px;
+    background:linear-gradient(180deg,var(--ink1) 0%,transparent 100%);
+  }
+  .logo-moon{font-size:56px;display:block;margin-bottom:16px;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .logo-jp{font-family:var(--serif);font-size:11px;color:var(--amber);letter-spacing:4px;margin-bottom:8px;opacity:.8}
+  .logo-en{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--t1);letter-spacing:.5px}
+  .logo-sub{font-size:12px;color:var(--t3);margin-top:6px;letter-spacing:1px}
+
+  /* ── STATUS ── */
+  .status-bar{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    margin:0 auto 32px;padding:8px 16px;
+    background:rgba(34,165,80,.1);border:1px solid rgba(34,165,80,.2);
+    border-radius:20px;width:fit-content;font-size:12px;color:var(--green);
+  }
+  .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* ── CARDS ── */
+  .cards{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;
+    padding:0 20px;max-width:480px;margin:0 auto;
+  }
+  @media(max-width:360px){.cards{grid-template-columns:1fr}}
+  .card{
+    background:var(--ink2);border:1px solid var(--ink3);border-radius:20px;
+    padding:24px 20px;text-decoration:none;color:var(--t1);
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    transition:all .2s;position:relative;overflow:hidden;
+    cursor:pointer;
+  }
+  .card::before{
+    content:'';position:absolute;inset:0;border-radius:20px;
+    background:linear-gradient(135deg,rgba(255,255,255,.03) 0%,transparent 60%);
+    pointer-events:none;
+  }
+  .card:active{transform:scale(.97)}
+  .card.pos{border-color:rgba(179,0,27,.3)}
+  .card.pos:hover{border-color:rgba(179,0,27,.6);background:rgba(179,0,27,.08)}
+  .card.store{border-color:rgba(34,165,80,.3)}
+  .card.store:hover{border-color:rgba(34,165,80,.6);background:rgba(34,165,80,.08)}
+  .card-icon{font-size:40px;line-height:1}
+  .card-title{font-size:15px;font-weight:700;letter-spacing:.3px}
+  .card-desc{font-size:11px;color:var(--t3);text-align:center;line-height:1.5}
+  .card-badge{
+    position:absolute;top:12px;right:12px;
+    background:var(--red);color:#fff;font-size:9px;font-weight:700;
+    padding:2px 7px;border-radius:10px;letter-spacing:.5px;
+  }
+  .card.store .card-badge{background:var(--green)}
+
+  /* ── QUICK STATS ── */
+  .stats{
+    display:flex;gap:12px;padding:24px 20px 0;
+    max-width:480px;margin:0 auto;
+  }
+  .stat{
+    flex:1;background:var(--ink2);border:1px solid var(--ink3);
+    border-radius:14px;padding:14px;text-align:center;
+  }
+  .stat-val{font-size:18px;font-weight:700;color:var(--amber)}
+  .stat-lbl{font-size:10px;color:var(--t3);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+
+  /* ── INSTALL BANNER ── */
+  .install-banner{
+    display:none;margin:24px 20px 0;max-width:480px;margin-left:auto;margin-right:auto;
+    background:var(--amber-d);border:1px solid rgba(200,164,77,.3);
+    border-radius:14px;padding:14px 16px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .install-banner.hidden{display:none!important}
+  .install-icon{font-size:24px;flex-shrink:0}
+  .install-text{flex:1}
+  .install-title{font-size:13px;font-weight:700;color:var(--amber);margin-bottom:2px}
+  .install-sub{font-size:11px;color:var(--t3)}
+  .install-btn{
+    background:var(--amber);color:var(--ink0);border:none;
+    border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;
+    cursor:pointer;white-space:nowrap;font-family:var(--font);
+  }
+
+  /* ── FOOTER ── */
+  .footer{
+    text-align:center;padding:32px 20px 48px;
+    font-size:11px;color:var(--t3);line-height:1.8;
+  }
+  .footer a{color:var(--amber);text-decoration:none}
+
+  /* ── SYNC STATUS ── */
+  .sync-status{
+    text-align:center;margin:16px 20px 0;
+    font-size:11px;color:var(--t3);
+  }
+  .sync-ok{color:var(--green)}
+  .sync-err{color:var(--red)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="logo-moon">🌙</span>
+  <div class="logo-jp">熊本ハラルフード</div>
+  <div class="logo-en">Kumamoto Halal Food</div>
+  <div class="logo-sub">HALAL CERTIFIED · KUMAMOTO, JAPAN</div>
+</div>
+
+<div class="status-bar">
+  <div class="status-dot"></div>
+  <span id="status-text">Checking connection...</span>
+</div>
+
+<!-- Quick Stats -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-val" id="stat-today">—</div>
+    <div class="stat-lbl">Today Orders</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" id="stat-sales">—</div>
+    <div class="stat-lbl">Today Sales</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" id="stat-pending">—</div>
+    <div class="stat-lbl">Pending</div>
+  </div>
+</div>
+
+<!-- App Cards -->
+<div class="cards" style="margin-top:20px">
+  <a href="/kumamoto_pos_v2.html" class="card pos">
+    <div class="card-badge">STAFF</div>
+    <div class="card-icon">🏪</div>
+    <div class="card-title">POS Terminal</div>
+    <div class="card-desc">Kasir, inventory & admin dashboard</div>
+  </a>
+  <a href="/kumamoto_store.html" class="card store">
+    <div class="card-badge">LIVE</div>
+    <div class="card-icon">🛒</div>
+    <div class="card-title">Online Store</div>
+    <div class="card-desc">Order online untuk customer</div>
+  </a>
+</div>
+
+<!-- Install Banner -->
+<div class="install-banner hidden" id="install-banner">
+  <div class="install-icon">📲</div>
+  <div class="install-text">
+    <div class="install-title">Install as App</div>
+    <div class="install-sub">Tambah ke Home Screen untuk akses cepat</div>
+  </div>
+  <button class="install-btn" id="install-btn">Install</button>
+</div>
+
+<div class="sync-status" id="sync-status"></div>
+
+<div class="footer">
+  KHF Business System v3.0<br>
+  <a href="/kumamoto_pos_v2.html">POS</a> · 
+  <a href="/kumamoto_store.html">Store</a><br><br>
+  © 2026 Kumamoto Halal Food · Kumamoto, Japan
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwXdba0q3DcY5fVjG3Zn4JRF3BCahn2qSOe7oug0xQTkDGdKm99f0Vn7WP3aks4pc/exec';
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    console.log('[SW] Registered:', reg.scope);
+  }).catch(err => console.warn('[SW] Failed:', err));
+}
+
+// Load dashboard stats
+async function loadStats() {
+  const statusEl = document.getElementById('status-text');
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getDashboard`);
+    const d = await res.json();
+    if (d.ok) {
+      document.getElementById('stat-today').textContent = d.todayOrders || 0;
+      document.getElementById('stat-sales').textContent = '¥' + Number(d.todaySales||0).toLocaleString();
+      document.getElementById('stat-pending').textContent = d.pendingOrders || 0;
+      statusEl.textContent = 'Connected to Google Sheets ✓';
+      statusEl.parentElement.style.background = 'rgba(34,165,80,.1)';
+      statusEl.parentElement.style.borderColor = 'rgba(34,165,80,.2)';
+      document.getElementById('sync-status').innerHTML = '<span class="sync-ok">✓ Last sync: ' + new Date().toLocaleTimeString('ja-JP') + '</span>';
+    }
+  } catch(e) {
+    statusEl.textContent = 'Offline mode';
+    statusEl.parentElement.style.background = 'rgba(179,0,27,.1)';
+    statusEl.parentElement.style.borderColor = 'rgba(179,0,27,.2)';
+    statusEl.parentElement.querySelector('.status-dot').style.background = '#B3001B';
+    document.getElementById('sync-status').innerHTML = '<span class="sync-err">⚠ Cannot connect to Sheets</span>';
+  }
+}
+
+// PWA Install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').classList.remove('hidden');
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  if (result.outcome === 'accepted') {
+    document.getElementById('install-banner').classList.add('hidden');
+  }
+  deferredPrompt = null;
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').classList.add('hidden');
+});
+
+loadStats();
+// Auto refresh stats every 60 seconds
+setInterval(loadStats, 60000);
+</script>
+</body>
+</html>

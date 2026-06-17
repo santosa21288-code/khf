@@ -1,0 +1,36 @@
+{
+  "name": "Kumamoto Halal Food",
+  "short_name": "KHF",
+  "description": "Kumamoto Halal Food — POS & Online Store",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0e0e0e",
+  "theme_color": "#C8A44D",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230e0e0e'/><text y='140' x='96' font-size='120' text-anchor='middle'>🌙</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%230e0e0e'/><text y='380' x='256' font-size='320' text-anchor='middle'>🌙</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "POS Terminal",
+      "short_name": "POS",
+      "url": "/kumamoto_pos_v2.html",
+      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' fill='%23B3001B'/><text y='70' x='48' font-size='60' text-anchor='middle'>🏪</text></svg>", "sizes": "96x96"}]
+    },
+    {
+      "name": "Online Store",
+      "short_name": "Store",
+      "url": "/kumamoto_store.html",
+      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' fill='%23059669'/><text y='70' x='48' font-size='60' text-anchor='middle'>🛒</text></svg>", "sizes": "96x96"}]
+    }
+  ]
+}
