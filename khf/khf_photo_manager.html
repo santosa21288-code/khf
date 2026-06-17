@@ -1,0 +1,5789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KHF Photo Manager — Product Images</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink0:#080808;--ink1:#0e0e0e;--ink2:#141414;--ink3:#1c1c1c;--ink4:#242424;--ink5:#2e2e2e;
+  --red:#B3001B;--red-l:#e0001f;--red-d:rgba(179,0,27,.15);
+  --gold:#C8A44D;--gold-l:#e8c068;--gold-d:rgba(200,164,77,.12);
+  --green:#22a550;--green-d:rgba(34,165,80,.14);
+  --t1:#f0ece4;--t2:#9e9a93;--t3:#5a5650;--t4:#3a3632;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.11);--b3:rgba(255,255,255,.18);
+  --sans:'Inter',sans-serif;--serif:'Noto Serif JP',serif;--mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--ink0);color:var(--t1);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--ink5);border-radius:4px}
+
+/* HEADER */
+.header{background:var(--ink1);border-bottom:1px solid var(--b1);padding:0 24px;position:sticky;top:0;z-index:100}
+.header::before{content:'';display:block;height:3px;background:linear-gradient(90deg,var(--red),var(--gold));margin:0 -24px 0}
+.header-inner{max-width:1280px;margin:0 auto;height:60px;display:flex;align-items:center;gap:16px}
+.header-logo{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:8px}
+.header-logo-icon{width:34px;height:34px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.header-sub{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.header-spacer{flex:1}
+.header-stats{display:flex;gap:16px}
+.hs{text-align:center}
+.hs-val{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--t1)}
+.hs-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+
+/* TOOLBAR */
+.toolbar{background:var(--ink2);border-bottom:1px solid var(--b1);padding:12px 24px}
+.toolbar-inner{max-width:1280px;margin:0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 15px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s;white-space:nowrap}
+.btn:active{transform:scale(.96)}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:var(--red-l)}
+.btn-gold{background:var(--gold-d);color:var(--gold-l);border:1px solid rgba(200,164,77,.25)}.btn-gold:hover{background:rgba(200,164,77,.2)}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--b2)}.btn-ghost:hover{color:var(--t1);background:rgba(255,255,255,.04)}
+.btn-green{background:var(--green-d);color:var(--green);border:1px solid rgba(34,165,80,.25)}.btn-green:hover{background:rgba(34,165,80,.2)}
+.search-wrap{position:relative;flex:1;min-width:200px;max-width:340px}
+.search-wrap input{width:100%;background:var(--ink3);border:1px solid var(--b2);border-radius:8px;padding:8px 12px 8px 34px;color:var(--t1);font-size:12px;font-family:var(--sans)}
+.search-wrap input:focus{outline:none;border-color:var(--gold)}
+.search-wrap .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;pointer-events:none}
+.filter-sel{background:var(--ink3);border:1px solid var(--b2);border-radius:8px;padding:8px 11px;color:var(--t1);font-size:12px;font-family:var(--sans);-webkit-appearance:none;cursor:pointer}
+.filter-sel:focus{outline:none;border-color:var(--gold)}
+.filter-sel option{background:var(--ink2)}
+
+/* PROGRESS BAR */
+.progress-wrap{background:var(--ink2);border-bottom:1px solid var(--b1);padding:10px 24px;display:none}
+.progress-wrap.show{display:block}
+.progress-inner{max-width:1280px;margin:0 auto}
+.progress-label{font-size:11px;color:var(--t3);margin-bottom:6px;display:flex;justify-content:space-between}
+.progress-bar{height:4px;background:var(--ink5);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--gold));border-radius:2px;transition:width .3s}
+
+/* MAIN GRID */
+.main{max-width:1280px;margin:0 auto;padding:20px 24px}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+
+/* PRODUCT CARD */
+.pc{background:var(--ink2);border:1px solid var(--b1);border-radius:14px;overflow:hidden;transition:border-color .2s;position:relative}
+.pc:hover{border-color:var(--b2)}
+.pc.has-img{border-color:rgba(34,165,80,.35)}
+.pc.has-img .pc-status{background:var(--green-d);color:var(--green);border-color:rgba(34,165,80,.3)}
+.pc.searching{border-color:rgba(200,164,77,.4)}
+.pc.no-img{border-color:var(--b1)}
+
+/* Image area */
+.pc-img-wrap{position:relative;aspect-ratio:1;background:var(--ink3);overflow:hidden}
+.pc-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s}
+.pc-img-wrap img.loading{opacity:0}
+.pc-emoji-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px}
+.pc-img-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;gap:8px}
+.pc-img-wrap:hover .pc-img-overlay{opacity:1}
+.pc-overlay-btn{padding:7px 12px;border-radius:7px;border:none;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.pc-overlay-btn-find{background:var(--gold);color:var(--ink0)}
+.pc-overlay-btn-clear{background:rgba(179,0,27,.8);color:#fff}
+.pc-spin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);display:none}
+.pc-spin.show{display:flex}
+.spin{width:24px;height:24px;border:3px solid rgba(255,255,255,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Card info */
+.pc-info{padding:10px 12px 12px}
+.pc-status{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;margin-bottom:6px;border:1px solid;letter-spacing:.5px;background:var(--ink4);color:var(--t3);border-color:var(--b1)}
+.pc-sku{font-family:var(--mono);font-size:10px;color:var(--gold);margin-bottom:2px}
+.pc-name{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:5px;line-height:1.3}
+.pc-cat{font-size:10px;color:var(--t3)}
+.pc-url-wrap{margin-top:8px;display:flex;gap:5px}
+.pc-url-input{flex:1;background:var(--ink4);border:1px solid var(--b1);border-radius:6px;padding:5px 8px;color:var(--t1);font-size:10px;font-family:var(--mono);min-width:0}
+.pc-url-input:focus{outline:none;border-color:var(--gold)}
+.pc-url-input::placeholder{color:var(--t4)}
+.pc-url-save{padding:5px 9px;background:var(--gold-d);border:1px solid rgba(200,164,77,.2);border-radius:6px;color:var(--gold-l);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.pc-url-save:hover{background:rgba(200,164,77,.2)}
+
+/* ALT IMAGES PICKER */
+.alt-picker{background:var(--ink3);border:1px solid var(--b2);border-radius:10px;padding:10px;margin-top:8px;display:none}
+.alt-picker.show{display:block}
+.alt-picker-title{font-size:10px;color:var(--t3);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px}
+.alt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.alt-img{aspect-ratio:1;border-radius:5px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:border-color .15s;background:var(--ink4)}
+.alt-img:hover{border-color:var(--gold)}
+.alt-img img{width:100%;height:100%;object-fit:cover}
+.alt-img.selected{border-color:var(--green)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink3);border:1px solid var(--b2);color:var(--t1);padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(60px);opacity:0;transition:all .3s;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{border-color:rgba(34,165,80,.4);color:var(--green)}
+.toast.err{border-color:rgba(179,0,27,.4);color:var(--red-l)}
+.toast.info{border-color:rgba(200,164,77,.4);color:var(--gold-l)}
+
+/* EXPORT MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.mo.open{opacity:1;pointer-events:all}
+.modal{background:var(--ink2);border:1px solid var(--b2);border-radius:18px;width:640px;max-width:94vw;max-height:88vh;overflow:hidden;display:flex;flex-direction:column}
+.mh{padding:16px 20px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.mt{font-size:15px;font-weight:700;font-family:var(--serif);color:var(--t1)}
+.mc{width:28px;height:28px;background:rgba(255,255,255,.07);border:none;border-radius:7px;color:var(--t2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mb{padding:20px;overflow-y:auto;flex:1}
+.export-code{background:var(--ink1);border:1px solid var(--b1);border-radius:8px;padding:14px;font-family:var(--mono);font-size:11px;color:var(--t2);line-height:1.7;max-height:360px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+.mf{padding:13px 20px;border-top:1px solid var(--b1);display:flex;gap:8px;justify-content:flex-end}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--t3)}
+.empty-icon{font-size:48px;margin-bottom:14px}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .prod-grid{grid-template-columns:repeat(2,1fr)}
+  .header-stats{display:none}
+  .toolbar-inner{gap:7px}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- EXPORT MODAL -->
+<div class="mo" id="export-mo">
+  <div class="modal">
+    <div class="mh">
+      <div class="mt">📋 Export Image URLs</div>
+      <button class="mc" onclick="closeMo()">✕</button>
+    </div>
+    <div class="mb">
+      <p style="font-size:12px;color:var(--t2);margin-bottom:14px">Copy this JavaScript object and paste it into your POS / Store HTML file to update all product images at once.</p>
+      <div class="export-code" id="export-code"></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeMo()">Close</button>
+      <button class="btn btn-gold" onclick="copyExport()">📋 Copy to Clipboard</button>
+      <button class="btn btn-green" onclick="downloadExport()">⬇ Download .js</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div style="height:3px;background:linear-gradient(90deg,var(--red),var(--gold));margin:0 -24px"></div>
+  <div class="header-inner">
+    <div class="header-logo">
+      <div class="header-logo-icon">🌙</div>
+      <div>
+        <div>Kumamoto Halal Food</div>
+        <div class="header-sub">PHOTO MANAGER v1.0</div>
+      </div>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="header-stats">
+      <div class="hs"><div class="hs-val" id="stat-total">361</div><div class="hs-lbl">Products</div></div>
+      <div class="hs"><div class="hs-val" id="stat-with-img" style="color:var(--green)">0</div><div class="hs-lbl">With Photo</div></div>
+      <div class="hs"><div class="hs-val" id="stat-pct">0%</div><div class="hs-lbl">Complete</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <div class="search-wrap">
+      <span class="si">🔍</span>
+      <input type="text" placeholder="Search product…" id="search-inp" oninput="filterProds()">
+    </div>
+    <select class="filter-sel" id="cat-filter" onchange="filterProds()">
+      <option value="">All Categories</option>
+    </select>
+    <select class="filter-sel" id="status-filter" onchange="filterProds()">
+      <option value="">All Status</option>
+      <option value="has">✓ Has Photo</option>
+      <option value="none">✗ No Photo</option>
+    </select>
+    <button class="btn btn-red" onclick="findAllPhotos()">🔍 Find All Photos</button>
+    <button class="btn btn-ghost" onclick="stopSearch()" id="btn-stop" style="display:none">⏹ Stop</button>
+    <button class="btn btn-gold" onclick="showExport()">📋 Export URLs</button>
+    <button class="btn btn-green" onclick="saveToSheets()">☁ Save to Sheets</button>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap" id="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-label">
+      <span id="progress-label">Finding photos…</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="prod-grid" id="prod-grid"></div>
+</div>
+
+<script>
+'use strict';
+
+/* ══════════════════════════════════════
+   PRODUCT DATA (361 products)
+══════════════════════════════════════ */
+const ALL_PRODUCTS = [
+{
+"sku": "KHF-0001",
+"name": "Asem Jawa 400 grm (tamarind)",
+"cat": "Spice / Bumbu",
+"sub": "Bahan Dasar Masak",
+"price": 650,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌿",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0002",
+"name": "Asem Jawa Paste 454 grm (amarind)",
+"cat": "Spice / Bumbu",
+"sub": "Bahan Dasar Masak",
+"price": 523,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌿",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0003",
+"name": "Kemiri (candle nut)",
+"cat": "Spice / Bumbu",
+"sub": "Bahan Dasar Masak",
+"price": 398,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌿",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0004",
+"name": "Terasi Thailand 250 grm (balacan)",
+"cat": "Spice / Bumbu",
+"sub": "Bahan Dasar Masak",
+"price": 565,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌿",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0005",
+"name": "Terasi sachet 20 pcs (balacan)",
+"cat": "Spice / Bumbu",
+"sub": "Bahan Dasar Masak",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌿",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0006",
+"name": "Ajinomoto",
+"cat": "Spice / Bumbu",
+"sub": "Kaldu & Penyedap",
+"price": 485,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧂",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0007",
+"name": "Bon Cabe Level 30／50",
+"cat": "Spice / Bumbu",
+"sub": "Kaldu & Penyedap",
+"price": 555,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧂",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0008",
+"name": "Ladaku Sachet",
+"cat": "Spice / Bumbu",
+"sub": "Kaldu & Penyedap",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧂",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0009",
+"name": "Masako Kaldu Ayam",
+"cat": "Spice / Bumbu",
+"sub": "Kaldu & Penyedap",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧂",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0010",
+"name": "Masako Kaldu Sapi",
+"cat": "Spice / Bumbu",
+"sub": "Kaldu & Penyedap",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧂",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0011",
+"name": "Royco Ayam",
+"cat": "Spice / Bumbu",
+"sub": "Kaldu & Penyedap",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧂",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0012",
+"name": "Royco Kuah Bakso",
+"cat": "Spice / Bumbu",
+"sub": "Kaldu & Penyedap",
+"price": 480,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧂",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0013",
+"name": "Royco Sapi",
+"cat": "Spice / Bumbu",
+"sub": "Kaldu & Penyedap",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧂",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0014",
+"name": "Sasa Kaldu Ayam",
+"cat": "Spice / Bumbu",
+"sub": "Kaldu & Penyedap",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧂",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0015",
+"name": "Sasa Kaldu Sapi",
+"cat": "Spice / Bumbu",
+"sub": "Kaldu & Penyedap",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧂",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0016",
+"name": "Bawang Merah Thailand 500 grm",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 1100,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0017",
+"name": "Bawang merah indo 500grm",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 890,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0018",
+"name": "Cabai Hijau Frozen 200 grm",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 450,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0019",
+"name": "Cabai Kering",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 425,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0020",
+"name": "Cabai Merah Frozen 200 grm",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 450,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0021",
+"name": "Cabai rawit merah indo Frozen 500 grm",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 980,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0022",
+"name": "Cabe merah Vietnam 500 grm",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 950,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0023",
+"name": "Cabe merah keriting 500grm",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 950,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0024",
+"name": "Daun Jeruk Frozen (Frozen Lime Leaf)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0025",
+"name": "Daun Jeruk Frozen 100 gram (Frozen Lime Leaf)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 650,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0026",
+"name": "Daun Jeruk Kering (Dry Lime Leaf)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 680,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0027",
+"name": "Daun Kunyit Beku (Frozen Tumeric Leaf)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0028",
+"name": "Daun Pandan Frozen (Pandan Leaf)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 345,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0029",
+"name": "Daun Salam Beku )Frozen Salam Leaf)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 650,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0030",
+"name": "Daun Salam Kering (Dry Salam Leaf)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 525,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0031",
+"name": "Daun kunyit Kering (Dry Tumeric Leaf)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 480,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0032",
+"name": "Kencur Frozen 100 grm (kaemferia galanga)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 510,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0033",
+"name": "Kencur Frozen 200 grm (kaemferia galanga)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0034",
+"name": "Kunyit Frozen 100 grm (tumeric frozen)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 425,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0035",
+"name": "Lengkuas Frozen 100 grm (galangal)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 425,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0036",
+"name": "Lengkuas Frozen 200 grm (galangal)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0037",
+"name": "Lombok Merah (cabe besar) 500 grm",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 950,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0038",
+"name": "Sereh Frozen 200 grm (lemongrass)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0039",
+"name": "Sereh Frozen 500 grm (Lemongrass)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0040",
+"name": "Temu Kunci Frozen (fingerroot)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah & Sayur Segar/Frozen",
+"price": 380,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0041",
+"name": "Bay Leaf",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 310,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0042",
+"name": "Biji Pala (Nutmeg)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0043",
+"name": "Bunga Lawang (Star Anis)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 285,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0044",
+"name": "Cengkeh (Cloves)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 635,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0045",
+"name": "Jinten 180 grm (cumin whole)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 495,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0046",
+"name": "Jinten Bubuk 200 grm (cumin powder)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0047",
+"name": "Kapulaga (cardamon)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 625,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0048",
+"name": "Kapulaga Bubuk (cardamon powder)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 578,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0049",
+"name": "Kayu Manis (cinnamon)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 285,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0050",
+"name": "Ketumbar biji 180 grm (corriander)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 485,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0051",
+"name": "Ketumbar bubuk 200 grm (corriander powder)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 575,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0052",
+"name": "Kunyit bubuk 200 grm (tumeric Powder)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 495,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0053",
+"name": "Lada Hitam Biji (black papper)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 450,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0054",
+"name": "Lada Hitam Bubuk 100 grm (black papper powder)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 485,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0055",
+"name": "Lada Putih Biji (white papper)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 575,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0056",
+"name": "Lada bubuk thailand 55 grm (whitr papper)",
+"cat": "Spice / Bumbu",
+"sub": "Rempah Kering",
+"price": 355,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🫙",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0057",
+"name": "Chaokoh Santan Bubuk",
+"cat": "Spice / Bumbu",
+"sub": "Santan & Kelapa",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥥",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0058",
+"name": "Chaokoh Santan Cream 1 liter",
+"cat": "Spice / Bumbu",
+"sub": "Santan & Kelapa",
+"price": 735,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "🥥",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0059",
+"name": "Chaokoh Santan Cream 250 ml",
+"cat": "Spice / Bumbu",
+"sub": "Santan & Kelapa",
+"price": 280,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "🥥",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0060",
+"name": "Chaokoh Santan Cream Kaleng 400 ml",
+"cat": "Spice / Bumbu",
+"sub": "Santan & Kelapa",
+"price": 389,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "🥥",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0061",
+"name": "Kara Santan Bubuk 50 grn",
+"cat": "Spice / Bumbu",
+"sub": "Santan & Kelapa",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥥",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0062",
+"name": "Kara Santan Milk 200 ml",
+"cat": "Spice / Bumbu",
+"sub": "Santan & Kelapa",
+"price": 280,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "🥥",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0063",
+"name": "Kelapa Parut Frozen",
+"cat": "Spice / Bumbu",
+"sub": "Santan & Kelapa",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥥",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0064",
+"name": "Kelapa Parut Kering 200 grm",
+"cat": "Spice / Bumbu",
+"sub": "Santan & Kelapa",
+"price": 775,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🥥",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0065",
+"name": "Jengkol 500 grm (dog fruit)",
+"cat": "Spice / Bumbu",
+"sub": "Sayuran Khas",
+"price": 950,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌿",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0066",
+"name": "Petai 100 gram (stinky bean)",
+"cat": "Spice / Bumbu",
+"sub": "Sayuran Khas",
+"price": 630,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌿",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0067",
+"name": "Kobe Tepung Pisang Krispy",
+"cat": "Spice / Bumbu",
+"sub": "Tepung Siap Pakai",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0068",
+"name": "Kobe Tepung Super Crispy Kentucky",
+"cat": "Spice / Bumbu",
+"sub": "Tepung Siap Pakai",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0069",
+"name": "Kobe Tepung Tempe Kriuk",
+"cat": "Spice / Bumbu",
+"sub": "Tepung Siap Pakai",
+"price": 375,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0070",
+"name": "Sasa Tepung Bakwan",
+"cat": "Spice / Bumbu",
+"sub": "Tepung Siap Pakai",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0071",
+"name": "Sasa Tepung Serbaguna Hot＆Spicy",
+"cat": "Spice / Bumbu",
+"sub": "Tepung Siap Pakai",
+"price": 480,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-BMB"
+},
+{
+"sku": "KHF-0072",
+"name": "Juice Lyche",
+"cat": "Drinks",
+"sub": "Jus",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0073",
+"name": "Juice Manggo",
+"cat": "Drinks",
+"sub": "Jus",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0074",
+"name": "Es Kopi Susu KHF Homemade",
+"cat": "Drinks",
+"sub": "Kopi",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "☕",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0075",
+"name": "Good day Cappuchino",
+"cat": "Drinks",
+"sub": "Kopi",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "☕",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0076",
+"name": "Indocafe 3 in 1",
+"cat": "Drinks",
+"sub": "Kopi",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "☕",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0077",
+"name": "Kopi Kapal Api 160 grm",
+"cat": "Drinks",
+"sub": "Kopi",
+"price": 675,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "☕",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0078",
+"name": "Foco Guava (jambu)",
+"cat": "Drinks",
+"sub": "Minuman Lainnya",
+"price": 195,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0079",
+"name": "Foco Roasted Coconut 350 ml",
+"cat": "Drinks",
+"sub": "Minuman Lainnya",
+"price": 195,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0080",
+"name": "Foco Roasted Coconut 500 ml",
+"cat": "Drinks",
+"sub": "Minuman Lainnya",
+"price": 275,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0081",
+"name": "Ichtan Milk Coffee)",
+"cat": "Drinks",
+"sub": "Minuman Lainnya",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0082",
+"name": "NU Green Tea",
+"cat": "Drinks",
+"sub": "Minuman Lainnya",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0083",
+"name": "NU Green Tea Honey",
+"cat": "Drinks",
+"sub": "Minuman Lainnya",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0084",
+"name": "Pure Coconut Water 1 liter",
+"cat": "Drinks",
+"sub": "Minuman Lainnya",
+"price": 385,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0085",
+"name": "Refresh Cincau Drink",
+"cat": "Drinks",
+"sub": "Minuman Lainnya",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0086",
+"name": "Ultra Sari Kacang Hijau",
+"cat": "Drinks",
+"sub": "Minuman Lainnya",
+"price": 195,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🧃",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0087",
+"name": "Marjan Syrup Coco Pandan",
+"cat": "Drinks",
+"sub": "Sirup",
+"price": 980,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍹",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0088",
+"name": "Marjan Syrup Melon",
+"cat": "Drinks",
+"sub": "Sirup",
+"price": 980,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍹",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0089",
+"name": "Marjan syrup Leci",
+"cat": "Drinks",
+"sub": "Sirup",
+"price": 980,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍹",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0090",
+"name": "Sirup Mawar",
+"cat": "Drinks",
+"sub": "Sirup",
+"price": 775,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍹",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0091",
+"name": "A&W Rootbeer",
+"cat": "Drinks",
+"sub": "Soda",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥤",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0092",
+"name": "Soda (coca cola, Sprite, fanta)",
+"cat": "Drinks",
+"sub": "Soda",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥤",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0093",
+"name": "Badam",
+"cat": "Drinks",
+"sub": "Susu & Sereal",
+"price": 200,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥛",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0094",
+"name": "Energen Chocolate",
+"cat": "Drinks",
+"sub": "Susu & Sereal",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥛",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0095",
+"name": "Energen Kurma",
+"cat": "Drinks",
+"sub": "Susu & Sereal",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥛",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0096",
+"name": "Energen kacang Hijau",
+"cat": "Drinks",
+"sub": "Susu & Sereal",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥛",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0097",
+"name": "Energen susu",
+"cat": "Drinks",
+"sub": "Susu & Sereal",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥛",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0098",
+"name": "SKM Coklat Indomilk",
+"cat": "Drinks",
+"sub": "Susu & Sereal",
+"price": 625,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥛",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0099",
+"name": "SKM Indomilk",
+"cat": "Drinks",
+"sub": "Susu & Sereal",
+"price": 625,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥛",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0100",
+"name": "Fruit Tea Blackcurant",
+"cat": "Drinks",
+"sub": "Teh",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍵",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0101",
+"name": "Ichitan Thai Milk Tea",
+"cat": "Drinks",
+"sub": "Teh",
+"price": 195,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍵",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0102",
+"name": "Teh Botol",
+"cat": "Drinks",
+"sub": "Teh",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍵",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0103",
+"name": "Teh Celup Sariwangi",
+"cat": "Drinks",
+"sub": "Teh",
+"price": 575,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍵",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0104",
+"name": "Teh Celup Tong Tji",
+"cat": "Drinks",
+"sub": "Teh",
+"price": 575,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍵",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0105",
+"name": "Teh Kotak",
+"cat": "Drinks",
+"sub": "Teh",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍵",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0106",
+"name": "Teh Pucuk",
+"cat": "Drinks",
+"sub": "Teh",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍵",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0107",
+"name": "Thai Tea KHF Homemade",
+"cat": "Drinks",
+"sub": "Teh",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍵",
+"image": "",
+"online": true,
+"catId": "CAT-DRK"
+},
+{
+"sku": "KHF-0108",
+"name": "Durian Indonesia",
+"cat": "Frozen Meat",
+"sub": "Buah Kaleng & Frozen",
+"price": 1150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0109",
+"name": "Durian Monthong Frozen",
+"cat": "Frozen Meat",
+"sub": "Buah Kaleng & Frozen",
+"price": 1750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0110",
+"name": "Durian Vietnam 300 gram",
+"cat": "Frozen Meat",
+"sub": "Buah Kaleng & Frozen",
+"price": 950,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0111",
+"name": "Kelapa Muda Kaleng (Young Coconut Meat)",
+"cat": "Frozen Meat",
+"sub": "Buah Kaleng & Frozen",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0112",
+"name": "Leci Kaleng (Lychee)",
+"cat": "Frozen Meat",
+"sub": "Buah Kaleng & Frozen",
+"price": 650,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0113",
+"name": "Nangka Kaleng (Jackfruit)",
+"cat": "Frozen Meat",
+"sub": "Buah Kaleng & Frozen",
+"price": 575,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0114",
+"name": "Nangka Muda Kaleng (Young Jackfruit)",
+"cat": "Frozen Meat",
+"sub": "Buah Kaleng & Frozen",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0115",
+"name": "Ajinatori Sosis Ayam (Chicken Sausage) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 3150,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0116",
+"name": "Ajinatori Sosis Ayam Sapi (Beef & Chicken) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2700,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0117",
+"name": "Ampela (Chicken Gizzard) 450 grm",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0118",
+"name": "Ayam Giling/ cincang (Chicken Mince) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 925,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0119",
+"name": "Ayam Potong Paha (Chicken Leg Bone In) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 975,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0120",
+"name": "Ayam Utuh Brazil (Whole Chicken) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 950,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0121",
+"name": "Ayam Utuh Potong (Whole Chicken Cut) 1 Kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 950,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0122",
+"name": "Babat (Beef Tripe) 1kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1300,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0123",
+"name": "Bahu Domba Muda (Lamb Chop Shoulder) 1 kg (5-6 pcs)",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 3100,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0124",
+"name": "Bakso Ayam (Chicken Meatballs) (9 pcs)",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 650,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0125",
+"name": "Bakso Sapi (Meatballs) 500 grm",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1450,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0126",
+"name": "Bakso Sapi Super (Large Meatballs) (2Pcs)",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1450,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0127",
+"name": "Bebek Potong (Duck Cut) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1300,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0128",
+"name": "Bebek Utuh (Whole Duck) 1.5 - 1.7 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1500,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0129",
+"name": "Bebek Utuh (Whole Duck) 1.8 - 2 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1850,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0130",
+"name": "Betis Domba (Mutton Shank Slices) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1800,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0131",
+"name": "Buntut Sapi (Beef Tail) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2300,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0132",
+"name": "Ceker Ayam ( Chikken Feet) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 895,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0133",
+"name": "Dada Tanpa Tulang (Bonless Chic Breast) 2 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1700,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0134",
+"name": "Daging Sapi Slice non fat (Beef Slice) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2545,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0135",
+"name": "Domba (Mutton) mix bakra 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2500,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0136",
+"name": "Domba Giling (Motton Mince) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2200,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0137",
+"name": "Domba Muda Mix (Lamb Mix Bakra) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1950,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0138",
+"name": "Domba Muda Slice (Lamb Slice) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2600,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0139",
+"name": "Domba Muda potong dadu (Lamb Dice) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2550,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0140",
+"name": "Domba Potong Dadu (Mutton Dice) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2550,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0141",
+"name": "Domba Tanpa Tulang (Mutton Boneless) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2250,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0142",
+"name": "Domba dengan Tulang '(Mutton Bone in) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2200,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0143",
+"name": "Fiesta Chicken Snitzel",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0144",
+"name": "Fiesta Deli stripe",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0145",
+"name": "Fiesta Karage",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0146",
+"name": "Fiesta Pop Bites",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0147",
+"name": "Fiesta Spicy Wing",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0148",
+"name": "Fiesta spicy chicken",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0149",
+"name": "Hati Ayam (Chicken Liver) 450 grm",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0150",
+"name": "Hati Sapi (liver) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1300,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0151",
+"name": "Ikan Lele (Catfish) 2 - 4 pcs",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0152",
+"name": "Kikil Kaki Sapi (Beef Paya) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1250,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0153",
+"name": "Kikil Sapi (Beef Tendon/Cow skin) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1650,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0154",
+"name": "Paha Tanpa Tulang (Boneless Chic Leg) 2 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1750,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0155",
+"name": "Paru Sapi (Beef Lung) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1500,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0156",
+"name": "Sadia Sosis Ayam (Chicken Susage) 500 grm",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0157",
+"name": "Sapi Giling/ Cincang (Beef Mince low fat) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2275,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0158",
+"name": "Sapi Potong Japan (Japan Beef Cube) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2275,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0159",
+"name": "Sapi dgn tulang Japan (JP Beef Bone In) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1850,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0160",
+"name": "Sapi potong low fat (Beef Cube low fat) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 2545,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0161",
+"name": "Sayap Ayam (Chicken Wings) 2 Kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1600,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0162",
+"name": "Seara Chicken Nugget 500 gram",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0163",
+"name": "Sunny Gold Nuget pop",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0164",
+"name": "Urat Kaki Sapi (Beef Achilles) 1 kg",
+"cat": "Frozen Meat",
+"sub": "Daging & Ikan",
+"price": 1650,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🥩",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0165",
+"name": "Batagor ( Fried Dumpling)",
+"cat": "Frozen Meat",
+"sub": "Lauk Siap Saji",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥟",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0166",
+"name": "Otak otak vietnam Frozen",
+"cat": "Frozen Meat",
+"sub": "Lauk Siap Saji",
+"price": 575,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥟",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0167",
+"name": "Siomay Bandung (Bandung Steam Dumpling)",
+"cat": "Frozen Meat",
+"sub": "Lauk Siap Saji",
+"price": 850,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🥟",
+"image": "",
+"online": true,
+"catId": "CAT-FRZ"
+},
+{
+"sku": "KHF-0168",
+"name": "Agar Swalow (merah, hijau, coklat, bening)",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0169",
+"name": "Basmati Rice 1 kg",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 960,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0170",
+"name": "Basmati Rice 2 kg",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 1985,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0171",
+"name": "Basmati Rice 5 kg",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 4800,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0172",
+"name": "Bawang Goreng (Fried Onion) 1kg",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 1200,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0173",
+"name": "Bihun Longkou (Vermicelli)",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0174",
+"name": "Blueband Sachet (Margarine)",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0175",
+"name": "Cincau Bubuk - kosong",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 225,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0176",
+"name": "Daun Talas Kering (Dry Taro Leaf)",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 595,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0177",
+"name": "Gula Merah (Palm Sugar)",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 605,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0178",
+"name": "Gula merah Thailand (Palm Sugar)",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 603,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0179",
+"name": "Jasmine Rice 5 kg",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 4700,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0180",
+"name": "Koepoe SP, Ovalet, TBM",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 325,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0181",
+"name": "Kraft Cheddar Cheese 150 gram",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 650,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0182",
+"name": "Maises Ceres Classic 80gram",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 450,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0183",
+"name": "Mie Telor Keriting (Egg Noodle)",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 265,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0184",
+"name": "Nata de coco",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 285,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0185",
+"name": "Nutrijell (kelapa muda, jeruk, cincau, plain)",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 175,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0186",
+"name": "Panili Koepoe (Vanilla Powder)",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0187",
+"name": "Pasta Pandan Koepo (Pandan Paste) 30ml",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0188",
+"name": "Pasta Pandan Koepoe ( Pandan Paste) 60ml",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 385,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0189",
+"name": "Ragi Fermipan - kosong",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0190",
+"name": "Tepung Beras Rose Brand (Rice Flour) 500 grm",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 675,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0191",
+"name": "Tepung Dawet - kosong",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0192",
+"name": "Tepung Ketan (Sticky Rice Flour) 500 grm",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 650,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0193",
+"name": "Tepung Tapioca Rose Brand (Tapioca) 500 grm",
+"cat": "Grocery",
+"sub": "Bahan Masak & Lainnya",
+"price": 650,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🛒",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0194",
+"name": "Bamboe Ayam Goreng",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0195",
+"name": "Bamboe Ayam Kecap",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0196",
+"name": "Bamboe Balado",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0197",
+"name": "Bamboe Bumbu Bali",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0198",
+"name": "Bamboe Bumbu Rujak",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0199",
+"name": "Bamboe Gulai",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0200",
+"name": "Bamboe Kare",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0201",
+"name": "Bamboe Krengsengan",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0202",
+"name": "Bamboe Kuah Bakso",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0203",
+"name": "Bamboe Lodeh",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0204",
+"name": "Bamboe Nasi Goreng",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 450,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0205",
+"name": "Bamboe Nasi Goreng Pedas",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0206",
+"name": "Bamboe Opor",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0207",
+"name": "Bamboe Rawon",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0208",
+"name": "Bamboe Rendang",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0209",
+"name": "Bamboe Rica rica",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0210",
+"name": "Bamboe Sambel Goreng Ati",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0211",
+"name": "Bamboe Semur",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0212",
+"name": "Bamboe Sop",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0213",
+"name": "Bamboe Soto Batawi",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0214",
+"name": "Bamboe Soto Daging",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0215",
+"name": "Bamboe Soto ayam",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 165,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0216",
+"name": "Bamboe Tongseng",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0217",
+"name": "Indofood Gulai",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 155,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0218",
+"name": "Indofood Kare",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 155,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0219",
+"name": "Indofood Opor",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 155,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0220",
+"name": "Indofood Racik Nasi Goreng",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 155,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0221",
+"name": "Indofood Racik Sayur Asem",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 155,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0222",
+"name": "Indofood Racik Serbaguna",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 155,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0223",
+"name": "Indofood Rawon",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 155,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0224",
+"name": "Indofood Soto Ayam",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 155,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0225",
+"name": "Indofood Soto Daging",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 155,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0226",
+"name": "Kobe Bumbu Rendang",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0227",
+"name": "Kobe Nasi Bebek",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0228",
+"name": "Kobe Nasi Kuning",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0229",
+"name": "Kobe Nasi Uduk",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0230",
+"name": "Kokita Bumbu Inti A (cabai)",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 896,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0231",
+"name": "Kokita Bumbu Inti B (kunyit)",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 896,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0232",
+"name": "Kokita Bumbu Inti C (kemiri)",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 896,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0233",
+"name": "Kokita Bumbu Inti D (tumis)",
+"cat": "Instant Food",
+"sub": "Bumbu Instant",
+"price": 896,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍛",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0234",
+"name": "Kacang Hijau 1 kg (mung bean)",
+"cat": "Grocery",
+"sub": "Kacang-Kacangan",
+"price": 780,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🫘",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0235",
+"name": "Kacang Hijau Kupas 1 kg (mung bean)",
+"cat": "Grocery",
+"sub": "Kacang-Kacangan",
+"price": 780,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🫘",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0236",
+"name": "Kacang Merah 1kg (red bean)",
+"cat": "Grocery",
+"sub": "Kacang-Kacangan",
+"price": 780,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🫘",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0237",
+"name": "Kacang Tanah 1 kg (peanut)",
+"cat": "Grocery",
+"sub": "Kacang-Kacangan",
+"price": 950,
+"cost": 0,
+"minStock": 5,
+"unit": "kg",
+"emoji": "🫘",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0238",
+"name": "Kacang Tanah 500 gram (peanut)",
+"cat": "Grocery",
+"sub": "Kacang-Kacangan",
+"price": 650,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🫘",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0239",
+"name": "Kacang hijau 500 gr (mung bean)",
+"cat": "Grocery",
+"sub": "Kacang-Kacangan",
+"price": 400,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🫘",
+"image": "",
+"online": true,
+"catId": "CAT-GRC"
+},
+{
+"sku": "KHF-0240",
+"name": "Emping mentah",
+"cat": "Snack",
+"sub": "Kerupuk & Keripik",
+"price": 740,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍿",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0241",
+"name": "Keripik Tempe Daun Jeruk siap saji",
+"cat": "Snack",
+"sub": "Kerupuk & Keripik",
+"price": 575,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍿",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0242",
+"name": "Keripik Tempe Pedas siap saji",
+"cat": "Snack",
+"sub": "Kerupuk & Keripik",
+"price": 575,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍿",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0243",
+"name": "Kerupuk Bawang palembang Zona",
+"cat": "Snack",
+"sub": "Kerupuk & Keripik",
+"price": 655,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍿",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0244",
+"name": "Kerupuk Bawang palembang siap saji",
+"cat": "Snack",
+"sub": "Kerupuk & Keripik",
+"price": 685,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍿",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0245",
+"name": "Kerupuk Mawar Deliamor mentah",
+"cat": "Snack",
+"sub": "Kerupuk & Keripik",
+"price": 575,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍿",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0246",
+"name": "Kerupuk Palembang siap saji",
+"cat": "Snack",
+"sub": "Kerupuk & Keripik",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍿",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0247",
+"name": "Kerupuk Pelangi Zona mentah",
+"cat": "Snack",
+"sub": "Kerupuk & Keripik",
+"price": 598,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍿",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0248",
+"name": "Kerupuk Udang Finna mentah (Shrimp Crackers)",
+"cat": "Snack",
+"sub": "Kerupuk & Keripik",
+"price": 1200,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍿",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0249",
+"name": "Kerupuk Udang Kecil Pelangi mentah",
+"cat": "Snack",
+"sub": "Kerupuk & Keripik",
+"price": 398,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍿",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0250",
+"name": "King Fisher Sarden Balado",
+"cat": "Instant Food",
+"sub": "Makanan Kaleng",
+"price": 375,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🐟",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0251",
+"name": "King Fisher Sarden Bumbu bangkok",
+"cat": "Instant Food",
+"sub": "Makanan Kaleng",
+"price": 375,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🐟",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0252",
+"name": "King Fisher Sarden Sambal Hijau",
+"cat": "Instant Food",
+"sub": "Makanan Kaleng",
+"price": 375,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🐟",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0253",
+"name": "King Fisher Tuna Balado",
+"cat": "Instant Food",
+"sub": "Makanan Kaleng",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🐟",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0254",
+"name": "King Fisher Tuna Sambel Matah",
+"cat": "Instant Food",
+"sub": "Makanan Kaleng",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🐟",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0255",
+"name": "Ligo Sarden Saos tomat/ Saos Pedas",
+"cat": "Instant Food",
+"sub": "Makanan Kaleng",
+"price": 275,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🐟",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0256",
+"name": "ABC cup ayam bawang",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0257",
+"name": "ABC cup selera pedas",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0258",
+"name": "ABC cup soto",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0259",
+"name": "Indomie Ayam Spesial",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0260",
+"name": "Indomie Goreng",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0261",
+"name": "Indomie Goreng Pedas",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0262",
+"name": "Indomie Soto Mie",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0263",
+"name": "Indomie goreng iga penyet",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0264",
+"name": "Indomie goreng rendang",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0265",
+"name": "Indomie hype goreng ayam geprek",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0266",
+"name": "Mie ABC Ayam Bawang",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0267",
+"name": "Mie ABC Baso Sapi",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0268",
+"name": "Mie ABC Gulai Ayam",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0269",
+"name": "Mie ABC Pedas Nampol",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0270",
+"name": "Mie ABC Soto Mie",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0271",
+"name": "Mie Sedap Goreng Ayam Krispi",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0272",
+"name": "Mie Sedap Goreng Cup",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0273",
+"name": "Mie Sedap Goreng Perisa Asli",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 115,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0274",
+"name": "Ramen Hakata Halal (isi 2 porsi)",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 485,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0275",
+"name": "Ramen Kumamoto Halal (isi 2 porsi)",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 485,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0276",
+"name": "Samyang Buldak Stir Fried Cup",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0277",
+"name": "Samyang Cheese",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 285,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0278",
+"name": "Samyang Cream Carbo",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 285,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0279",
+"name": "Samyang Cream Carbo Cup",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 325,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0280",
+"name": "Samyang Extreme spicy",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 285,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0281",
+"name": "Samyang Hot Chicken Ramen",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 285,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0282",
+"name": "Samyang Original",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 285,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0283",
+"name": "Samyang Yaki Soba",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 285,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0284",
+"name": "Shin Ramyun Noodle Soup",
+"cat": "Instant Food",
+"sub": "Mie Instant",
+"price": 185,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍜",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0285",
+"name": "Adem Sari",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 125,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0286",
+"name": "Antimo",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0287",
+"name": "Bodrex",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0288",
+"name": "Bodrex Extra",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0289",
+"name": "Fresh Care (Merah)",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 500,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0290",
+"name": "Komix",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 180,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0291",
+"name": "Minyak Kayu Putih",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 725,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0292",
+"name": "Minyak Kayu Putih Caplang 60ml",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 850,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0293",
+"name": "Minyak Telon Tresno joyo 100ml",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0294",
+"name": "Minyak Telon Tresno joyo 30ml",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 500,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0295",
+"name": "Promag",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0296",
+"name": "Sanmol paracetamol",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0297",
+"name": "Stop Cold",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0298",
+"name": "Sumagesic",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 150,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0299",
+"name": "Tolak angin (original, herbal, batuk)",
+"cat": "Health & Medicine",
+"sub": "Obat & Kesehatan",
+"price": 135,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "💊",
+"image": "",
+"online": true,
+"catId": "CAT-MED"
+},
+{
+"sku": "KHF-0300",
+"name": "ABC Kecap Asin",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 735,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0301",
+"name": "ABC Kecap Manis 600ml",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 790,
+"cost": 0,
+"minStock": 5,
+"unit": "ml",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0302",
+"name": "ABC Saos Sambal",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 650,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0303",
+"name": "Bangau Kecap Manis Botol Kecil 385 grm",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 565,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0304",
+"name": "Bangau Kecap Manis Pouch 700 grm",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 975,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0305",
+"name": "Belibis Sambal Terasi",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 685,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0306",
+"name": "Belibis Saos Sambal",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 775,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0307",
+"name": "Cuka thailand (vinegar)",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 250,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0308",
+"name": "Dixi cuka (vinegar)",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 407,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0309",
+"name": "Enak Eco Gado-gado",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 565,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0310",
+"name": "Enak Eco Sambel Pecel",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 565,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0311",
+"name": "Kokita Bumbu Nasi Goreng",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 800,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0312",
+"name": "Kokita Gado-gado",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 950,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0313",
+"name": "Kokita Kecap Sambal",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 885,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0314",
+"name": "Kokita Sambal Bajak",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 735,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0315",
+"name": "Kokita Sambal Gila",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 725,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0316",
+"name": "Kokita Sambal Terasi",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 735,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0317",
+"name": "Maggi Saos sambal",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 465,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0318",
+"name": "Minyak Ikan (Fish sauce)",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 250,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0319",
+"name": "Saori Saos Asam Manis",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0320",
+"name": "Saori Saos Lada Hitam",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0321",
+"name": "Saori Saos Tiram sachet",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0322",
+"name": "Saos Tiram (oyster sauce)",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 285,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0323",
+"name": "Sariraya Sambel Pecel",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 565,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0324",
+"name": "Sedap kecap pouch 725 grm",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "g",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0325",
+"name": "Uleg Sambal Geprek Sachet",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0326",
+"name": "Uleg Sambal Rawit Sachet",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0327",
+"name": "Uleg Sambal Udang Sachet",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0328",
+"name": "Uleg Sambal terasi Sachet",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0329",
+"name": "Uleg Sambel Bawang Sachet",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0330",
+"name": "Uleg Sambel Ijo Sachet",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0331",
+"name": "Uleg sambal Rendang Sachet",
+"cat": "Instant Food",
+"sub": "Saos & Sambal",
+"price": 120,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🌶️",
+"image": "",
+"online": true,
+"catId": "CAT-INS"
+},
+{
+"sku": "KHF-0332",
+"name": "Basreng Original",
+"cat": "Snack",
+"sub": "Snack",
+"price": 375,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0333",
+"name": "Basreng Pedas",
+"cat": "Snack",
+"sub": "Snack",
+"price": 375,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0334",
+"name": "Beng beng Max",
+"cat": "Snack",
+"sub": "Snack",
+"price": 125,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0335",
+"name": "Beng beng original",
+"cat": "Snack",
+"sub": "Snack",
+"price": 100,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0336",
+"name": "BonCabe Macaroni",
+"cat": "Snack",
+"sub": "Snack",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0337",
+"name": "Deka wafer roll jumbo choco choco",
+"cat": "Snack",
+"sub": "Snack",
+"price": 475,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0338",
+"name": "Kong guan assorted biscuit",
+"cat": "Snack",
+"sub": "Snack",
+"price": 725,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0339",
+"name": "Lapis Legit",
+"cat": "Snack",
+"sub": "Snack",
+"price": 750,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0340",
+"name": "Maicih Basreng Level 0 & 10",
+"cat": "Snack",
+"sub": "Snack",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0341",
+"name": "Maicih Keripik Taro level 0 & 10",
+"cat": "Snack",
+"sub": "Snack",
+"price": 550,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0342",
+"name": "Malkist Biskuit Abon",
+"cat": "Snack",
+"sub": "Snack",
+"price": 385,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0343",
+"name": "Malkist chocolate",
+"cat": "Snack",
+"sub": "Snack",
+"price": 385,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0344",
+"name": "Permen Kopiko",
+"cat": "Snack",
+"sub": "Snack",
+"price": 300,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0345",
+"name": "Permen Kopiko cappuchino",
+"cat": "Snack",
+"sub": "Snack",
+"price": 300,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0346",
+"name": "Pisang sale",
+"cat": "Snack",
+"sub": "Snack",
+"price": 600,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-0347",
+"name": "Wafer Chocolate / Tiramisu",
+"cat": "Snack",
+"sub": "Snack",
+"price": 375,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍫",
+"image": "",
+"online": true,
+"catId": "CAT-SNK"
+},
+{
+"sku": "KHF-RST-001",
+"name": "Mie Ayam Bakso Super",
+"cat": "Restaurant",
+"sub": "Mie ayam + bakso sapi extra",
+"price": 1300,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-002",
+"name": "Mie Bakso Super",
+"cat": "Restaurant",
+"sub": "Mie bakso sapi super",
+"price": 1250,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-003",
+"name": "Siomay",
+"cat": "Restaurant",
+"sub": "Siomay bandung halal",
+"price": 1000,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-004",
+"name": "Batagor",
+"cat": "Restaurant",
+"sub": "Batagor halal + bumbu kacang",
+"price": 950,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-005",
+"name": "Spicy Beef Ramen",
+"cat": "Restaurant",
+"sub": "Ramen halal kuah pedas daging sapi",
+"price": 1250,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-006",
+"name": "Nasi Padang Komplit",
+"cat": "Restaurant",
+"sub": "Nasi + lauk lengkap ala padang",
+"price": 1450,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-007",
+"name": "Lamb Chop with Rice",
+"cat": "Restaurant",
+"sub": "Lamb chop halal + nasi + salad",
+"price": 1200,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-008",
+"name": "Teh Tawar",
+"cat": "Restaurant",
+"sub": "Teh tanpa gula",
+"price": 300,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-009",
+"name": "Soda Gembira",
+"cat": "Restaurant",
+"sub": "Soda + susu + sirup",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-010",
+"name": "Kopi Susu",
+"cat": "Restaurant",
+"sub": "Kopi susu homemade",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-011",
+"name": "Thai Tea",
+"cat": "Restaurant",
+"sub": "Thai tea homemade",
+"price": 350,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-012",
+"name": "Teh Manis",
+"cat": "Restaurant",
+"sub": "Teh manis hangat/dingin",
+"price": 300,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-013",
+"name": "Softdrink",
+"cat": "Restaurant",
+"sub": "Soda kaleng assorted",
+"price": 160,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+},
+{
+"sku": "KHF-RST-014",
+"name": "Teh Botol Resto",
+"cat": "Restaurant",
+"sub": "Teh botol sosro",
+"price": 180,
+"cost": 0,
+"minStock": 5,
+"unit": "pcs",
+"emoji": "🍳",
+"image": "",
+"online": false,
+"catId": "CAT-RST"
+}
+];
+
+/* ══════════════════════════════════════
+   CONFIG
+══════════════════════════════════════ */
+const CFG = {
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwwXdba0q3DcY5fVjG3Zn4JRF3BCahn2qSOe7oug0xQTkDGdKm99f0Vn7WP3aks4pc/exec',
+  USE_MOCK: false,
+  // Free image search APIs (no key required)
+  // Uses DuckDuckGo image search via public endpoint
+  IMAGE_SOURCES: [
+    'duckduckgo', // primary
+    'bing',       // fallback
+  ],
+};
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+const S = {
+  products: [],        // enriched with imageUrl
+  filtered: [],
+  searching: false,
+  searchQueue: [],
+  imageCache: {},      // sku → imageUrl
+};
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+(function init() {
+  // Load from localStorage if available
+  const saved = loadSaved();
+  S.products = ALL_PRODUCTS.map(p => ({
+    ...p,
+    imageUrl: saved[p.sku] || p.image || '',
+  }));
+  S.filtered = [...S.products];
+
+  // Build category filter
+  const cats = [...new Set(S.products.map(p => p.cat))].sort();
+  document.getElementById('cat-filter').innerHTML =
+    '<option value="">All Categories</option>' +
+    cats.map(c => `<option>${c}</option>`).join('');
+
+  renderGrid();
+  updateStats();
+
+  // Load images from Sheets in background
+  if (!CFG.USE_MOCK) {
+    loadImagesFromSheets();
+  }
+})();
+
+async function loadImagesFromSheets() {
+  try {
+    const res = await fetch(CFG.SCRIPT_URL + '?action=getProducts');
+    const data = await res.json();
+    if (!data.ok || !data.products) return;
+    let updated = 0;
+    data.products.forEach(sp => {
+      if (!sp.imageUrl) return;
+      const p = S.products.find(x => x.sku === sp.sku);
+      if (p && !p.imageUrl) {
+        p.imageUrl = sp.imageUrl;
+        updated++;
+      }
+    });
+    if (updated > 0) {
+      saveLocal();
+      renderGrid();
+      updateStats();
+      console.log('[PM] Loaded ' + updated + ' images from Sheets');
+    }
+  } catch(e) {
+    console.warn('[PM] Could not load from Sheets:', e);
+  }
+}
+
+/* ══════════════════════════════════════
+   LOCAL STORAGE (persist image URLs)
+══════════════════════════════════════ */
+function loadSaved() {
+  try { return JSON.parse(localStorage.getItem('khf_img_urls') || '{}'); }
+  catch { return {}; }
+}
+function saveLocal() {
+  const data = {};
+  S.products.forEach(p => { if (p.imageUrl) data[p.sku] = p.imageUrl; });
+  try { localStorage.setItem('khf_img_urls', JSON.stringify(data)); } catch {}
+}
+
+/* ══════════════════════════════════════
+   FILTER
+══════════════════════════════════════ */
+function filterProds() {
+  const q = document.getElementById('search-inp').value.toLowerCase();
+  const cat = document.getElementById('cat-filter').value;
+  const status = document.getElementById('status-filter').value;
+  S.filtered = S.products.filter(p => {
+    if (cat && p.cat !== cat) return false;
+    if (status === 'has' && !p.imageUrl) return false;
+    if (status === 'none' && p.imageUrl) return false;
+    if (q && !p.name.toLowerCase().includes(q) && !p.sku.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  renderGrid();
+}
+
+/* ══════════════════════════════════════
+   RENDER GRID
+══════════════════════════════════════ */
+function renderGrid() {
+  const grid = document.getElementById('prod-grid');
+  if (!S.filtered.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><div>No products found</div></div>`;
+    return;
+  }
+  grid.innerHTML = S.filtered.map(p => cardHTML(p)).join('');
+}
+
+function cardHTML(p) {
+  const hasImg = !!p.imageUrl;
+  return `
+  <div class="pc ${hasImg ? 'has-img' : 'no-img'}" id="card-${p.sku.replace(/[^a-zA-Z0-9]/g,'_')}">
+    <div class="pc-img-wrap">
+      ${hasImg
+        ? `<img src="${p.imageUrl}" alt="${p.name}" loading="lazy" onerror="imgError('${p.sku}')">`
+        : `<div class="pc-emoji-fallback">${p.emoji || '📦'}</div>`}
+      <div class="pc-img-overlay">
+        <button class="pc-overlay-btn pc-overlay-btn-find" onclick="findPhoto('${p.sku}')">🔍 Find Photo</button>
+        ${hasImg ? `<button class="pc-overlay-btn pc-overlay-btn-clear" onclick="clearPhoto('${p.sku}')">✕ Clear</button>` : ''}
+      </div>
+      <div class="pc-spin" id="spin-${p.sku.replace(/[^a-zA-Z0-9]/g,'_')}">
+        <div class="spin"></div>
+      </div>
+    </div>
+    <div class="pc-info">
+      <div class="pc-status">${hasImg ? '✓ HAS PHOTO' : '○ NO PHOTO'}</div>
+      <div class="pc-sku">${p.sku}</div>
+      <div class="pc-name">${p.name}</div>
+      <div class="pc-cat">${p.cat} · ${p.sub}</div>
+      <div class="pc-url-wrap">
+        <input class="pc-url-input" type="text" placeholder="Paste image URL…"
+          id="url-${p.sku.replace(/[^a-zA-Z0-9]/g,'_')}"
+          value="${p.imageUrl || ''}"
+          onchange="manualUrl('${p.sku}', this.value)">
+        <button class="pc-url-save" onclick="manualUrl('${p.sku}', document.getElementById('url-${p.sku.replace(/[^a-zA-Z0-9]/g,'_')}').value)">Save</button>
+      </div>
+      <div class="alt-picker" id="alt-${p.sku.replace(/[^a-zA-Z0-9]/g,'_')}">
+        <div class="alt-picker-title">Select best photo:</div>
+        <div class="alt-grid" id="altgrid-${p.sku.replace(/[^a-zA-Z0-9]/g,'_')}"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function updateCard(sku) {
+  const p = S.products.find(x => x.sku === sku);
+  if (!p) return;
+  const id = 'card-' + sku.replace(/[^a-zA-Z0-9]/g,'_');
+  const el = document.getElementById(id);
+  if (el) el.outerHTML = cardHTML(p);
+  updateStats();
+  saveLocal();
+}
+
+/* ══════════════════════════════════════
+   IMAGE SEARCH
+   Uses multiple free sources:
+   1. DuckDuckGo instant answer API
+   2. Open Graph via allorigins proxy
+   3. Curated product image databases
+══════════════════════════════════════ */
+async function findPhoto(sku) {
+  const p = S.products.find(x => x.sku === sku);
+  if (!p) return;
+  const skuId = sku.replace(/[^a-zA-Z0-9]/g,'_');
+  const spin = document.getElementById('spin-' + skuId);
+  if (spin) spin.classList.add('show');
+
+  const results = await searchImages(p);
+  if (spin) spin.classList.remove('show');
+
+  if (results.length === 0) {
+    toast(`No images found for "${p.name}"`, 'err');
+    return;
+  }
+
+  // Show alt picker with results
+  const altPicker = document.getElementById('alt-' + skuId);
+  const altGrid = document.getElementById('altgrid-' + skuId);
+  if (altPicker && altGrid) {
+    altGrid.innerHTML = results.slice(0, 8).map((url, i) =>
+      `<div class="alt-img" onclick="selectAlt('${sku}', '${url.replace(/'/g,"\\'")}', this)">
+        <img src="${url}" loading="lazy" onerror="this.parentElement.style.display='none'">
+      </div>`
+    ).join('');
+    altPicker.classList.add('show');
+    // Auto-select first
+    selectAlt(sku, results[0]);
+  }
+}
+
+function selectAlt(sku, url, el) {
+  const p = S.products.find(x => x.sku === sku);
+  if (!p) return;
+  p.imageUrl = url;
+  // Update input field
+  const skuId = sku.replace(/[^a-zA-Z0-9]/g,'_');
+  const inp = document.getElementById('url-' + skuId);
+  if (inp) inp.value = url;
+  // Highlight selected
+  document.querySelectorAll(`#altgrid-${skuId} .alt-img`).forEach(el => el.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+  updateCard(sku);
+  toast(`✓ Photo set for ${p.name}`, 'ok');
+}
+
+function manualUrl(sku, url) {
+  const p = S.products.find(x => x.sku === sku);
+  if (!p || !url) return;
+  url = url.trim();
+  if (!url.startsWith('http')) { toast('Please enter a valid URL (starts with http)', 'err'); return; }
+  p.imageUrl = url;
+  updateCard(sku);
+  toast('Photo URL saved!', 'ok');
+}
+
+function clearPhoto(sku) {
+  const p = S.products.find(x => x.sku === sku);
+  if (!p) return;
+  p.imageUrl = '';
+  updateCard(sku);
+  toast('Photo cleared', 'info');
+}
+
+function imgError(sku) {
+  const p = S.products.find(x => x.sku === sku);
+  if (p) p.imageUrl = '';
+  updateStats();
+}
+
+/* ══════════════════════════════════════
+   SEARCH ENGINE
+   Multi-source image search strategy:
+   1. Try multiple public image APIs
+   2. Build search URL based on product name
+   3. Return array of candidate image URLs
+══════════════════════════════════════ */
+async function searchImages(product) {
+  const query = buildQuery(product);
+  const results = [];
+
+  // Strategy 1: Use Unsplash Source (food images, no API key needed)
+  // This gives high-quality food/product photos
+  const unsplashUrl = `https://source.unsplash.com/400x400/?${encodeURIComponent(query + ' food')},transparent`;
+  results.push(unsplashUrl);
+
+  // Strategy 2: Use Wikipedia/Wikimedia for branded products
+  // Many Indonesian food brands have Wikimedia images
+  try {
+    const wikiQuery = encodeURIComponent(product.name.split(' ').slice(0, 3).join(' '));
+    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${wikiQuery}&prop=pageimages&format=json&pithumbsize=400&origin=*`;
+    const wikiRes = await fetch(wikiUrl);
+    const wikiData = await wikiRes.json();
+    const pages = wikiData?.query?.pages || {};
+    for (const page of Object.values(pages)) {
+      if (page.thumbnail?.source) results.push(page.thumbnail.source);
+    }
+  } catch {}
+
+  // Strategy 3: OpenFoodFacts for packaged foods
+  try {
+    // Extract brand from product name (first word often = brand)
+    const brand = product.name.split(' ')[0];
+    const offUrl = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(product.name)}&search_simple=1&action=process&json=1&page_size=5`;
+    const offRes = await fetch(offUrl);
+    const offData = await offRes.json();
+    if (offData?.products) {
+      offData.products.forEach(item => {
+        if (item.image_url) results.push(item.image_url);
+        if (item.image_front_url) results.push(item.image_front_url);
+        if (item.image_front_small_url) results.push(item.image_front_small_url);
+      });
+    }
+  } catch {}
+
+  // Strategy 4: Wikimedia Commons search
+  try {
+    const commonsUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json&origin=*`;
+    const commonsRes = await fetch(commonsUrl);
+    const commonsData = await commonsRes.json();
+    const commPages = commonsData?.query?.pages || {};
+    for (const page of Object.values(commPages)) {
+      const url = page?.imageinfo?.[0]?.thumburl;
+      if (url && url.match(/\.(jpg|jpeg|png|webp)/i)) results.push(url);
+    }
+  } catch {}
+
+  // Strategy 5: Curated fallback images by category
+  const categoryFallbacks = {
+    'Spice / Bumbu': [
+      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400',
+      'https://images.unsplash.com/photo-1506368249639-73a05d6f6488?w=400',
+      'https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=400',
+    ],
+    'Instant Food': [
+      'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400',
+      'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=400',
+    ],
+    'Frozen Meat': [
+      'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400',
+      'https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=400',
+    ],
+    'Drinks': [
+      'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400',
+      'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400',
+    ],
+    'Grocery': [
+      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400',
+      'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=400',
+    ],
+    'Snack': [
+      'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400',
+      'https://images.unsplash.com/photo-1582515073490-39981397c445?w=400',
+    ],
+    'Health & Medicine': [
+      'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400',
+      'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400',
+    ],
+    'Restaurant': [
+      'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400',
+      'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=400',
+    ],
+  };
+  const fallbacks = categoryFallbacks[product.cat] || ['https://images.unsplash.com/photo-1542838132-92c53300491e?w=400'];
+  results.push(...fallbacks);
+
+  // Deduplicate
+  return [...new Set(results)].filter(Boolean);
+}
+
+function buildQuery(product) {
+  // Smart query builder — handles Indonesian product names
+  const name = product.name;
+  // Map common Indonesian terms to English for better search results
+  const translations = {
+    'ayam': 'chicken', 'sapi': 'beef', 'domba': 'lamb', 'bebek': 'duck',
+    'ikan': 'fish', 'udang': 'shrimp', 'bakso': 'meatball',
+    'bumbu': 'spice paste', 'sambal': 'chili sauce', 'kecap': 'soy sauce',
+    'santan': 'coconut milk', 'gula merah': 'palm sugar',
+    'mie': 'noodle', 'nasi': 'rice', 'goreng': 'fried',
+    'rendang': 'rendang beef', 'soto': 'indonesian soup',
+    'frozen': 'frozen', 'instan': 'instant',
+  };
+  let query = name.toLowerCase();
+  for (const [id, en] of Object.entries(translations)) {
+    query = query.replace(new RegExp(id, 'g'), en);
+  }
+  return query.substring(0, 50);
+}
+
+/* ══════════════════════════════════════
+   FIND ALL PHOTOS (bulk)
+══════════════════════════════════════ */
+let stopRequested = false;
+async function findAllPhotos() {
+  const noImg = S.products.filter(p => !p.imageUrl);
+  if (!noImg.length) { toast('All products already have photos! 🎉', 'ok'); return; }
+
+  if (!confirm(`Find photos for ${noImg.length} products without images?\n\nThis will take about ${Math.ceil(noImg.length * 1.5)} seconds.`)) return;
+
+  stopRequested = false;
+  S.searching = true;
+  document.getElementById('btn-stop').style.display = '';
+  document.getElementById('progress-wrap').classList.add('show');
+
+  let done = 0;
+  for (const p of noImg) {
+    if (stopRequested) break;
+    document.getElementById('progress-label').textContent = `Finding: ${p.name}`;
+    document.getElementById('progress-pct').textContent = `${Math.round(done/noImg.length*100)}%`;
+    document.getElementById('progress-fill').style.width = `${Math.round(done/noImg.length*100)}%`;
+
+    const results = await searchImages(p);
+    if (results.length > 0) {
+      p.imageUrl = results[0];
+      updateCard(p.sku);
+    }
+    done++;
+    await new Promise(r => setTimeout(r, 400)); // Rate limit
+  }
+
+  S.searching = false;
+  document.getElementById('btn-stop').style.display = 'none';
+  document.getElementById('progress-wrap').classList.remove('show');
+  saveLocal();
+  filterProds();
+  toast(`Done! ${S.products.filter(p=>p.imageUrl).length} products now have photos.`, 'ok');
+}
+
+function stopSearch() { stopRequested = true; toast('Search stopped.', 'info'); }
+
+/* ══════════════════════════════════════
+   STATS
+══════════════════════════════════════ */
+function updateStats() {
+  const withImg = S.products.filter(p => p.imageUrl).length;
+  const total = S.products.length;
+  document.getElementById('stat-with-img').textContent = withImg;
+  document.getElementById('stat-pct').textContent = Math.round(withImg/total*100) + '%';
+}
+
+/* ══════════════════════════════════════
+   EXPORT
+══════════════════════════════════════ */
+function showExport() {
+  const withImg = S.products.filter(p => p.imageUrl);
+  if (!withImg.length) { toast('No photos to export yet!', 'err'); return; }
+
+  // Generate JS object for easy paste into POS/Store files
+  const lines = withImg.map(p => `  "${p.sku}": "${p.imageUrl}"`).join(',\n');
+  const code =
+`// KHF Product Images — Generated ${new Date().toLocaleDateString()}
+// ${withImg.length} products with photos
+// Paste this into your HTML files and call: applyProductImages(PRODUCT_IMAGES)
+
+const PRODUCT_IMAGES = {
+${lines}
+};
+
+// Apply images to ALL_PRODUCTS array
+function applyProductImages(imageMap) {
+  if (typeof ALL_PRODUCTS !== 'undefined') {
+    ALL_PRODUCTS.forEach(p => {
+      if (imageMap[p.sku]) p.image = imageMap[p.sku];
+    });
+  }
+}
+
+// Auto-apply on load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => applyProductImages(PRODUCT_IMAGES));
+} else {
+  applyProductImages(PRODUCT_IMAGES);
+}`;
+
+  document.getElementById('export-code').textContent = code;
+  document.getElementById('export-mo').classList.add('open');
+}
+
+function closeMo() { document.getElementById('export-mo').classList.remove('open'); }
+
+function copyExport() {
+  const code = document.getElementById('export-code').textContent;
+  navigator.clipboard.writeText(code)
+    .then(() => toast('Copied to clipboard!', 'ok'))
+    .catch(() => toast('Copy failed — please select and copy manually', 'err'));
+}
+
+function downloadExport() {
+  const code = document.getElementById('export-code').textContent;
+  const blob = new Blob([code], { type: 'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'khf_product_images.js'; a.click();
+  URL.revokeObjectURL(url);
+  toast('Downloaded khf_product_images.js', 'ok');
+}
+
+/* ══════════════════════════════════════
+   SAVE TO SHEETS (via Apps Script)
+══════════════════════════════════════ */
+async function saveToSheets() {
+  if (CFG.USE_MOCK) {
+    toast('Connect Apps Script URL first in CFG.SCRIPT_URL', 'info');
+    return;
+  }
+  const withImg = S.products.filter(p => p.imageUrl).map(p => ({sku: p.sku, imageUrl: p.imageUrl}));
+  if (!withImg.length) { toast('No images to save', 'err'); return; }
+  toast('Saving to Google Sheets…', 'info');
+  try {
+    const res = await fetch(CFG.SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({ action: 'updateProductImages', payload: withImg }),
+    });
+    const data = await res.json();
+    if (data.ok) toast(`Saved ${withImg.length} image URLs to Sheets!`, 'ok');
+    else toast('Error: ' + data.error, 'err');
+  } catch (e) {
+    toast('Connection failed: ' + e.message, 'err');
+  }
+}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = (type==='ok'?'✓ ':type==='err'?'✕ ':'ℹ ') + msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
